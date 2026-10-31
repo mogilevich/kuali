@@ -1,7 +1,7 @@
 //! Events reported by an audio source to the engine.
 //!
 //! Kuali accepts Discord voice channels and, through the browser extension,
-//! Meet, Teams, and Zoom. Every source emits per-channel audio with a bound
+//! Meet, Teams, Zoom, and Yandex Telemost. Every source emits per-channel audio with a bound
 //! participant identity.
 //!
 //! This vocabulary lives outside `kuali-discord` so sources never depend on one

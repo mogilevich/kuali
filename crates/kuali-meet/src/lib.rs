@@ -1,7 +1,7 @@
 //! Browser meetings as a second audio source.
 //!
 //! Kuali does not join the meeting. A browser extension captures audio within
-//! Meet, Microsoft Teams, or Zoom and sends it over a local WebSocket using
+//! Meet, Microsoft Teams, Zoom, or Yandex Telemost and sends it over a local WebSocket using
 //! `capture.v1` plus participant registration.
 //!
 //! ```text

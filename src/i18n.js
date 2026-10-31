@@ -80,8 +80,8 @@ export const ENGLISH_TRANSLATIONS = Object.freeze({
     "How you appear in meetings, so Kuali understands \u201cwhat is still pending for me?\u201d.",
   "Tus nombres en las reuniones": "Your names in meetings",
   "Juan Sebastián, juansebas": "Alex Rivera, alexr",
-  "Separa varios con comas. En Discord Kuali ya sabe quién eres; esto hace falta para Meet, Teams y Zoom, donde no hay ninguna cuenta que comprobar.":
-    "Separate several with commas. On Discord Kuali already knows who you are; this is what makes it work on Meet, Teams and Zoom, where there is no account to check.",
+  "Separa varios con comas. En Discord Kuali ya sabe quién eres; esto hace falta para Meet, Teams, Zoom y Telemost, donde no hay ninguna cuenta que comprobar.":
+    "Separate several with commas. On Discord Kuali already knows who you are; this is what makes it work on Meet, Teams, Zoom and Telemost, where there is no account to check.",
   "Activa las preguntas sobre reuniones": "Turn on questions about meetings",
   "Termina de preparar las preguntas": "Finish preparing questions",
   "Actualizando la memoria de reuniones": "Updating meeting memory",
@@ -448,8 +448,8 @@ export const ENGLISH_TRANSLATIONS = Object.freeze({
   "Progreso de configuración de la extensión": "Extension setup progress",
   Navegador: "Browser",
   "Instala Kuali desde Chrome Web Store": "Install Kuali from the Chrome Web Store",
-  "Elige el navegador donde usarás Meet, Teams o Zoom. Kuali abrirá su ficha oficial para que solo tengas que pulsar":
-    "Choose the browser where you use Meet, Teams, or Zoom. Kuali will open its official listing so you only need to select",
+  "Elige el navegador donde usarás Meet, Teams, Zoom o Telemost. Kuali abrirá su ficha oficial para que solo tengas que pulsar":
+    "Choose the browser where you use Meet, Teams, Zoom, or Telemost. Kuali will open its official listing so you only need to select",
   Instalar: "Install",
   "Instalar la extensión de Kuali": "Install the Kuali extension",
   "Instalar en Chrome": "Install in Chrome",
@@ -458,8 +458,8 @@ export const ENGLISH_TRANSLATIONS = Object.freeze({
   "Instalar en Arc": "Install in Arc",
   "Chrome Web Store también permite instalar extensiones en Edge, Brave y Arc.":
     "The Chrome Web Store also supports installing extensions in Edge, Brave, and Arc.",
-  "Google Meet tiene soporte estable. Microsoft Teams y Zoom tienen soporte experimental y parcial.":
-    "Google Meet has stable support. Microsoft Teams and Zoom have experimental, partial support.",
+  "Google Meet tiene soporte estable. Microsoft Teams, Zoom y Yandex Telemost tienen soporte experimental y parcial.":
+    "Google Meet has stable support. Microsoft Teams, Zoom, and Yandex Telemost have experimental, partial support.",
   "Instalación manual": "Manual installation",
   "Úsala solamente si la tienda no está disponible. Abre el administrador del navegador, activa":
     "Use this only when the store is unavailable. Open the browser's extension manager, enable",
@@ -471,8 +471,8 @@ export const ENGLISH_TRANSLATIONS = Object.freeze({
   "Abrir en Arc": "Open in Arc",
   ", pega esta ruta y confirma.": ", paste this path, and confirm.",
   "Abre la página de extensiones": "Open the extensions page",
-  "Elige el navegador donde usarás Meet, Teams o Zoom. Kuali abrirá directamente su administrador de extensiones.":
-    "Choose the browser where you use Meet, Teams, or Zoom. Kuali will open its extension manager directly.",
+  "Elige el navegador donde usarás Meet, Teams, Zoom o Telemost. Kuali abrirá directamente su administrador de extensiones.":
+    "Choose the browser where you use Meet, Teams, Zoom, or Telemost. Kuali will open its extension manager directly.",
   "Abrir extensiones del navegador": "Open browser extensions",
   "Administrador de extensiones": "Extension manager",
   "Activa “Modo desarrollador”": "Enable “Developer mode”",
@@ -951,8 +951,8 @@ export const ENGLISH_TRANSLATIONS = Object.freeze({
   "Cargar descomprimida": "Load unpacked",
   "Firma:": "Signature:",
   "Kuali está listo para una reunión web": "Kuali is ready for a web meeting",
-  "Usa la extensión desde Meet, Teams o Zoom con el puerto {port}. Discord puede configurarse aparte.":
-    "Use the extension from Meet, Teams, or Zoom on port {port}. Discord can be configured separately.",
+  "Usa la extensión desde Meet, Teams, Zoom o Telemost con el puerto {port}. Discord puede configurarse aparte.":
+    "Use the extension from Meet, Teams, Zoom, or Telemost on port {port}. Discord can be configured separately.",
   "Kuali está desconectado": "Kuali is disconnected",
   "Abre Ajustes para revisar Discord o el receptor de reuniones web.":
     "Open Settings to check Discord or the web-meeting receiver.",

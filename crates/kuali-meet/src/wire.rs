@@ -1,5 +1,5 @@
-//! The `capture.v1` wire format sent by the Kuali extension from Meet, Teams, or
-//! Zoom to the desktop application.
+//! The `capture.v1` wire format sent by the Kuali extension from Meet, Teams, Zoom, or
+//! Yandex Telemost to the desktop application.
 //!
 //! Vexa defines this Apache-2.0 format for carrying meeting audio from a browser
 //! to a desktop application. Kuali implements the receiving decoder.

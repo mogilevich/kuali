@@ -57,7 +57,7 @@ impl Default for ApplicationConfig {
     }
 }
 
-/// Browser meetings as a second audio source for Meet, Teams, and Zoom.
+/// Browser meetings as a second audio source for Meet, Teams, Zoom, and Yandex Telemost.
 ///
 /// Kuali does not join the meeting. A browser extension captures participant
 /// audio in the existing tab and sends it over a local WebSocket.

@@ -222,7 +222,7 @@ function speakerDisplayName(speaker) {
 }
 
 function isWebMeeting(meta) {
-  return ["Google Meet", "Microsoft Teams", "Zoom", "Reunión web"].includes(meta?.guildName);
+  return ["Google Meet", "Microsoft Teams", "Zoom", "Yandex Telemost", "Reunión web"].includes(meta?.guildName);
 }
 
 function meetingForEvent(meetingId) {
@@ -427,7 +427,7 @@ function shortDate(iso) {
 function meetingTitle(meta) {
   if (meta.displayTitle?.trim()) return meta.displayTitle.trim();
   if (meetingPlatform(meta) === "audio-file") return meta.channelName;
-  if (["Google Meet", "Microsoft Teams", "Zoom"].includes(meta.guildName)) {
+  if (["Google Meet", "Microsoft Teams", "Zoom", "Yandex Telemost"].includes(meta.guildName)) {
     return t("Reunión de {platform}", { platform: meta.guildName });
   }
   return `${meta.guildName} · ${meta.channelName}`;
@@ -1215,7 +1215,7 @@ async function renderRoot() {
       offline: state.webMeetings.listening
         ? [
             "Kuali está listo para una reunión web",
-            t("Usa la extensión desde Meet, Teams o Zoom con el puerto {port}. Discord puede configurarse aparte.", {
+            t("Usa la extensión desde Meet, Teams, Zoom o Telemost con el puerto {port}. Discord puede configurarse aparte.", {
               port: state.webMeetings.port,
             }),
           ]
@@ -1381,6 +1381,7 @@ function meetingPlatform(meta) {
   if (meta?.guildName === "Google Meet") return "google-meet";
   if (meta?.guildName === "Microsoft Teams") return "teams";
   if (meta?.guildName === "Zoom") return "zoom";
+  if (meta?.guildName === "Yandex Telemost") return "telemost";
   return "discord";
 }
 
@@ -1396,6 +1397,7 @@ const PLATFORM_ICONS = {
   "google-meet": "brand-meet",
   teams: "brand-teams",
   zoom: "brand-zoom",
+  telemost: "brand-telemost",
   "audio-file": "waveform",
 };
 
