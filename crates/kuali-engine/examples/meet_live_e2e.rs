@@ -1,4 +1,5 @@
-//! Interactive, real-browser Google Meet E2E.
+//! Interactive, real-browser web-meeting E2E (Google Meet by default; use
+//! `--platform yandex_telemost` for Yandex Telemost).
 //!
 //! This deliberately uses the production Engine and puts a transparent probe
 //! between the browser extension and Kuali's web-meeting receiver. The probe
@@ -10,7 +11,7 @@ use std::io::Write;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use anyhow::{anyhow, Context, Result};
 use chrono::Utc;
@@ -26,6 +27,21 @@ use tokio_tungstenite::tungstenite::handshake::server::{Request, Response};
 use tokio_tungstenite::tungstenite::Message;
 
 const DEFAULT_TIMEOUT_SECONDS: u64 = 15 * 60;
+const DEFAULT_PLATFORM: &str = "google_meet";
+const DEFAULT_TERMS: [&str; 6] = [
+    "kuali",
+    "waitingroom",
+    "kafka",
+    "redis",
+    "visual studio code",
+    "postgresql",
+];
+const MAX_TIMELINE_ENTRIES: usize = 5000;
+const MAX_ACTIVE_SECONDS: usize = 20_000;
+/// Reserved extension channel carrying the local microphone, named «Tú».
+const MIC_CHANNEL: u32 = 1000;
+const SELF_SPEAKER_NAME: &str = "Tú";
+const SELF_MARKER: &str = "@self";
 
 #[derive(Debug)]
 struct Options {
@@ -33,6 +49,59 @@ struct Options {
     timeout_seconds: u64,
     full: bool,
     report_dir: PathBuf,
+    platform: String,
+    terms: Option<Vec<String>>,
+    min_terms: Option<usize>,
+    expect_speakers: Vec<ExpectSpeaker>,
+}
+
+/// `--expect-speaker "<substring>=<term>"`: who must have said what.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ExpectSpeaker {
+    substring: String,
+    term: String,
+}
+
+impl ExpectSpeaker {
+    fn parse(value: &str) -> Result<Self> {
+        let (substring, term) = value
+            .split_once('=')
+            .context("--expect-speaker necesita «nombre=término»")?;
+        let (substring, term) = (substring.trim(), term.trim());
+        if substring.is_empty() || term.is_empty() {
+            return Err(anyhow!(
+                "--expect-speaker necesita nombre y término no vacíos"
+            ));
+        }
+        Ok(Self {
+            substring: substring.to_string(),
+            term: term.to_string(),
+        })
+    }
+}
+
+fn parse_terms(value: &str) -> Vec<String> {
+    value
+        .split(',')
+        .map(|term| term.trim().to_string())
+        .filter(|term| !term.is_empty())
+        .collect()
+}
+
+fn platform_label(platform: &str) -> String {
+    match platform {
+        "google_meet" => "Google Meet".to_string(),
+        "yandex_telemost" => "Yandex Telemost".to_string(),
+        other => other.to_string(),
+    }
+}
+
+fn report_prefix(platform: &str) -> &str {
+    if platform == DEFAULT_PLATFORM {
+        "meet"
+    } else {
+        platform
+    }
 }
 
 impl Options {
@@ -41,6 +110,10 @@ impl Options {
         let mut timeout_seconds = DEFAULT_TIMEOUT_SECONDS;
         let mut full = true;
         let mut report_dir = workspace_root().join("target/e2e/reports");
+        let mut platform = DEFAULT_PLATFORM.to_string();
+        let mut terms = None;
+        let mut min_terms = None;
+        let mut expect_speakers = Vec::new();
         let mut args = std::env::args().skip(1);
         while let Some(arg) = args.next() {
             match arg.as_str() {
@@ -64,10 +137,37 @@ impl Options {
                     report_dir =
                         PathBuf::from(args.next().context("--report-dir necesita una ruta")?);
                 }
+                "--platform" => {
+                    platform = args.next().context("--platform necesita un id")?;
+                }
+                "--terms" => {
+                    let list = parse_terms(&args.next().context("--terms necesita una lista")?);
+                    if list.is_empty() {
+                        return Err(anyhow!("--terms no puede estar vacío"));
+                    }
+                    terms = Some(list);
+                }
+                "--min-terms" => {
+                    min_terms = Some(
+                        args.next()
+                            .context("--min-terms necesita un número")?
+                            .parse()
+                            .context("--min-terms inválido")?,
+                    );
+                }
+                "--expect-speaker" => {
+                    expect_speakers.push(ExpectSpeaker::parse(
+                        &args
+                            .next()
+                            .context("--expect-speaker necesita «nombre=término»")?,
+                    )?);
+                }
                 "--help" | "-h" => {
                     println!(
                         "Uso: cargo run -p kuali-engine --example meet_live_e2e -- \
-                         [--port 19099] [--timeout-seconds 900] [--full|--solo]"
+                         [--port 19099] [--timeout-seconds 900] [--full|--solo] \
+                         [--platform google_meet|yandex_telemost] [--terms a,b,c] \
+                         [--min-terms N] [--expect-speaker \"nombre|@self=término\"]..."
                     );
                     std::process::exit(0);
                 }
@@ -79,6 +179,10 @@ impl Options {
             timeout_seconds,
             full,
             report_dir,
+            platform,
+            terms,
+            min_terms,
+            expect_speakers,
         })
     }
 }
@@ -97,6 +201,76 @@ struct ChannelProbe {
     frames: u64,
     samples: u64,
     peak: f32,
+    first_audio_ms: Option<u64>,
+    last_audio_ms: Option<u64>,
+    /// Wall-clock epoch seconds with at least one frame of peak >= 0.01.
+    active_seconds: BTreeSet<u64>,
+}
+
+/// One non-audio meeting event as the probe saw it on the wire.
+#[derive(Debug, Clone, Default, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+struct TimelineEntry {
+    ts_ms: u64,
+    kind: String,
+    channel: Option<u32>,
+    participant_id: Option<String>,
+    display_name: Option<String>,
+    is_self: Option<bool>,
+    audio_kind: Option<String>,
+    in_call: Option<bool>,
+    participant_count: Option<u64>,
+    participants: Option<Vec<TimelineParticipant>>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+struct TimelineParticipant {
+    participant_id: Option<String>,
+    display_name: Option<String>,
+    is_self: Option<bool>,
+}
+
+fn now_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+fn timeline_entry(kind: &str, detail: Option<&serde_json::Value>, ts_ms: u64) -> TimelineEntry {
+    let mut entry = TimelineEntry {
+        ts_ms,
+        kind: kind.to_string(),
+        ..TimelineEntry::default()
+    };
+    let Some(detail) = detail else { return entry };
+    entry.channel = detail
+        .get("channel")
+        .or_else(|| detail.get("index"))
+        .and_then(|value| value.as_u64())
+        .and_then(|value| u32::try_from(value).ok());
+    entry.participant_id = string_field(detail, &["participantId", "id"]);
+    entry.display_name = string_field(detail, &["displayName", "name"]);
+    entry.is_self = detail.get("isSelf").and_then(|value| value.as_bool());
+    entry.audio_kind = string_field(detail, &["audioKind"]);
+    entry.in_call = detail.get("inCall").and_then(|value| value.as_bool());
+    entry.participant_count = detail
+        .get("participantCount")
+        .and_then(|value| value.as_u64());
+    entry.participants = detail
+        .get("participants")
+        .and_then(|value| value.as_array())
+        .map(|list| {
+            list.iter()
+                .map(|participant| TimelineParticipant {
+                    participant_id: string_field(participant, &["participantId", "id"]),
+                    display_name: string_field(participant, &["displayName", "name"]),
+                    is_self: participant.get("isSelf").and_then(|value| value.as_bool()),
+                })
+                .collect()
+        });
+    entry
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
@@ -112,10 +286,15 @@ struct WireProbe {
     roster: Vec<serde_json::Value>,
     meet_probe: Option<serde_json::Value>,
     channels: BTreeMap<u32, ChannelProbe>,
+    timeline: Vec<TimelineEntry>,
 }
 
 impl WireProbe {
     fn observe(&mut self, message: &Message) {
+        self.observe_at(message, now_ms());
+    }
+
+    fn observe_at(&mut self, message: &Message, now_ms: u64) {
         match message {
             Message::Binary(bytes) => {
                 let Ok(Frame::Audio(frame)) = decode_binary(bytes) else {
@@ -138,6 +317,11 @@ impl WireProbe {
                 channel.frames += 1;
                 channel.samples += frame.samples.len() as u64;
                 channel.peak = channel.peak.max(peak);
+                channel.first_audio_ms.get_or_insert(now_ms);
+                channel.last_audio_ms = Some(now_ms);
+                if peak >= 0.01 && channel.active_seconds.len() < MAX_ACTIVE_SECONDS {
+                    channel.active_seconds.insert(now_ms / 1000);
+                }
                 if channel.display_name.is_none() {
                     channel.display_name = frame.speaker_name.clone();
                 }
@@ -147,6 +331,10 @@ impl WireProbe {
                     return;
                 };
                 self.meeting_events += 1;
+                if event.kind != "keepalive" && self.timeline.len() < MAX_TIMELINE_ENTRIES {
+                    self.timeline
+                        .push(timeline_entry(&event.kind, event.detail.as_ref(), now_ms));
+                }
                 if event.kind == "roster-state" {
                     let Some(detail) = event.detail else { return };
                     self.participant_count = detail
@@ -230,6 +418,16 @@ struct Assertion {
     detail: String,
 }
 
+/// Utterance plus the speaker it resolved to (start/end are ms since meeting start).
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ReportUtterance {
+    #[serde(flatten)]
+    utterance: Utterance,
+    speaker_name: Option<String>,
+    speaker_is_self: bool,
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct E2eReport {
@@ -245,7 +443,7 @@ struct E2eReport {
     model_states: Vec<ModelState>,
     speakers: Vec<Speaker>,
     preview_count: usize,
-    utterances: Vec<Utterance>,
+    utterances: Vec<ReportUtterance>,
     warnings: Vec<String>,
     wire: WireProbe,
     assertions: Vec<Assertion>,
@@ -305,12 +503,15 @@ async fn main() -> Result<()> {
     let ready = serde_json::json!({
         "port": external_port,
         "mode": if options.full { "full" } else { "solo" },
+        "platform": options.platform,
         "model": model.file_name(),
     });
     println!("KUALI_E2E_READY {ready}");
-    println!("Frase local:  Prueba local de Kuali, código mango cuatro ocho dos siete. WaitingRoom, Kafka y Redis.");
-    if options.full {
-        println!("Frase remota: Prueba remota de Kuali, código nube nueve tres seis uno. Visual Studio Code y PostgreSQL.");
+    if options.terms.is_none() {
+        println!("Frase local:  Prueba local de Kuali, código mango cuatro ocho dos siete. WaitingRoom, Kafka y Redis.");
+        if options.full {
+            println!("Frase remota: Prueba remota de Kuali, código nube nueve tres seis uno. Visual Studio Code y PostgreSQL.");
+        }
     }
     println!("Cuando termines, pulsa “Detener captura” en la extensión.");
     std::io::stdout().flush()?;
@@ -422,6 +623,10 @@ async fn main() -> Result<()> {
     let speaker_values = speakers.into_values().collect::<Vec<_>>();
     let assertions = assess(AssessmentInput {
         full: options.full,
+        platform: &options.platform,
+        terms: options.terms.as_deref(),
+        min_terms: options.min_terms,
+        expect_speakers: &options.expect_speakers,
         ended,
         previews,
         utterances: &utterances,
@@ -431,6 +636,19 @@ async fn main() -> Result<()> {
         wire: &wire,
         removed: test_meeting_removed,
     });
+    let report_utterances = utterances
+        .into_iter()
+        .map(|utterance| {
+            let speaker = speaker_values
+                .iter()
+                .find(|speaker| speaker.user_id == utterance.speaker_id);
+            ReportUtterance {
+                speaker_name: speaker.map(|speaker| speaker.display_name.clone()),
+                speaker_is_self: speaker.is_some_and(|speaker| speaker_is_self(speaker, &wire)),
+                utterance,
+            }
+        })
+        .collect::<Vec<_>>();
     let passed = assertions.iter().all(|assertion| assertion.passed) && !interrupted;
     let exercised = wire.request_path.is_some();
     let outcome = if passed {
@@ -453,7 +671,7 @@ async fn main() -> Result<()> {
         model_states,
         speakers: speaker_values,
         preview_count: previews,
-        utterances,
+        utterances: report_utterances,
         warnings,
         wire,
         assertions,
@@ -462,7 +680,9 @@ async fn main() -> Result<()> {
 
     std::fs::create_dir_all(&options.report_dir)?;
     let stamp = started_at.format("%Y%m%dT%H%M%SZ");
-    let report_path = options.report_dir.join(format!("meet-{stamp}.json"));
+    let report_path = options
+        .report_dir
+        .join(format!("{}-{stamp}.json", report_prefix(&options.platform)));
     std::fs::write(&report_path, serde_json::to_vec_pretty(&report)?)?;
     let result_title = match outcome {
         "passed" => "E2E APROBADO",
@@ -553,6 +773,10 @@ async fn connect_with_retry(port: u16) -> Result<TcpStream> {
 
 struct AssessmentInput<'a> {
     full: bool,
+    platform: &'a str,
+    terms: Option<&'a [String]>,
+    min_terms: Option<usize>,
+    expect_speakers: &'a [ExpectSpeaker],
     ended: bool,
     previews: usize,
     utterances: &'a [Utterance],
@@ -566,6 +790,10 @@ struct AssessmentInput<'a> {
 fn assess(input: AssessmentInput<'_>) -> Vec<Assertion> {
     let AssessmentInput {
         full,
+        platform,
+        terms: terms_override,
+        min_terms,
+        expect_speakers,
         ended,
         previews,
         utterances,
@@ -619,26 +847,14 @@ fn assess(input: AssessmentInput<'_>) -> Vec<Assertion> {
             .collect::<Vec<_>>()
             .join(" "),
     );
-    let terms = [
-        "kuali",
-        "waitingroom",
-        "kafka",
-        "redis",
-        "visual studio code",
-        "postgresql",
-    ];
-    let matched_terms = terms
-        .iter()
-        .filter(|term| transcript.contains(**term))
-        .copied()
-        .collect::<Vec<_>>();
+    let (matched_terms, min_required) = control_terms(&transcript, terms_override, min_terms, full);
     let total_seconds = wire.audio_samples as f64 / CAPTURE_SAMPLE_RATE as f64;
 
-    vec![
+    let mut assertions = vec![
         assertion(
-            "Handshake de Google Meet",
+            &format!("Handshake de {}", platform_label(platform)),
             wire.request_path.as_deref().is_some_and(|path| {
-                path.contains("platform=google_meet")
+                path.contains(&format!("platform={platform}"))
                     && path.contains("protocol=capture.v1%2Bparticipants")
             }),
             wire.request_path
@@ -705,8 +921,12 @@ fn assess(input: AssessmentInput<'_>) -> Vec<Assertion> {
         ),
         assertion(
             "Frase de control reconocida",
-            matched_terms.len() >= if full { 4 } else { 2 },
-            format!("términos reconocidos: {}", matched_terms.join(", ")),
+            matched_terms.len() >= min_required,
+            format!(
+                "términos reconocidos ({}/{min_required} mín.): {}",
+                matched_terms.len(),
+                matched_terms.join(", ")
+            ),
         ),
         assertion(
             "Cierre limpio",
@@ -727,7 +947,93 @@ fn assess(input: AssessmentInput<'_>) -> Vec<Assertion> {
             speakers.len() >= if full { 2 } else { 1 },
             format!("{} participante(s)", speakers.len()),
         ),
-    ]
+    ];
+    for expectation in expect_speakers {
+        assertions.push(check_expect_speaker(
+            expectation,
+            utterances,
+            speakers,
+            wire,
+        ));
+    }
+    assertions
+}
+
+/// Terms found in the (already normalized) transcript and the minimum needed.
+fn control_terms(
+    transcript: &str,
+    terms_override: Option<&[String]>,
+    min_terms: Option<usize>,
+    full: bool,
+) -> (Vec<String>, usize) {
+    let terms: Vec<String> = match terms_override {
+        Some(list) => list.iter().map(|term| normalize(term)).collect(),
+        None => DEFAULT_TERMS.iter().map(|term| term.to_string()).collect(),
+    };
+    let matched = terms
+        .into_iter()
+        .filter(|term| transcript.contains(term.as_str()))
+        .collect::<Vec<_>>();
+    (matched, min_terms.unwrap_or(if full { 4 } else { 2 }))
+}
+
+/// Whether the speaker is the person running Kuali. The engine's `is_self`
+/// is not enough: the reserved microphone channel (1000, «Tú») gets a
+/// fallback speaker with `is_self=false`, so also accept the wire's
+/// `isSelf` participant ids and the reserved name.
+fn speaker_is_self(speaker: &Speaker, wire: &WireProbe) -> bool {
+    speaker.is_self
+        || speaker.display_name == SELF_SPEAKER_NAME
+        || speaker.source_id.as_deref().is_some_and(|source_id| {
+            wire.channels.values().any(|channel| {
+                (channel.is_self || channel.channel == MIC_CHANNEL)
+                    && channel.participant_id.as_deref() == Some(source_id)
+            })
+        })
+}
+
+fn check_expect_speaker(
+    expectation: &ExpectSpeaker,
+    utterances: &[Utterance],
+    speakers: &[Speaker],
+    wire: &WireProbe,
+) -> Assertion {
+    let term = normalize(&expectation.term);
+    let wants_self = expectation.substring.eq_ignore_ascii_case(SELF_MARKER);
+    let needle = expectation.substring.to_lowercase();
+    let mut said_by = Vec::new();
+    let mut passed = false;
+    for utterance in utterances
+        .iter()
+        .filter(|utterance| normalize(&utterance.text).contains(&term))
+    {
+        let speaker = speakers
+            .iter()
+            .find(|speaker| speaker.user_id == utterance.speaker_id);
+        let name = speaker.map_or("Participante", |speaker| speaker.display_name.as_str());
+        let matches = speaker.is_some_and(|speaker| {
+            if wants_self {
+                speaker_is_self(speaker, wire)
+            } else {
+                speaker.display_name.to_lowercase().contains(&needle)
+            }
+        });
+        passed |= matches;
+        said_by.push(name.to_string());
+    }
+    let detail = if said_by.is_empty() {
+        "nadie dijo ese término".to_string()
+    } else {
+        format!("lo dijo(eron): {}", said_by.join(", "))
+    };
+    Assertion {
+        name: format!(
+            "Atribución: {} dijo «{}»",
+            expectation.substring, expectation.term
+        ),
+        passed,
+        detail,
+    }
 }
 
 fn assertion(name: &str, passed: bool, detail: String) -> Assertion {
@@ -758,4 +1064,130 @@ fn workspace_root() -> PathBuf {
         .and_then(Path::parent)
         .expect("kuali-engine debe vivir dentro del workspace")
         .to_path_buf()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn speaker(id: u64, name: &str, is_self: bool) -> Speaker {
+        let mut speaker = Speaker::unknown(id);
+        speaker.display_name = name.to_string();
+        speaker.is_self = is_self;
+        speaker
+    }
+
+    fn utterance(speaker_id: u64, text: &str) -> Utterance {
+        Utterance {
+            id: format!("u{speaker_id}"),
+            speaker_id,
+            start_ms: 0,
+            end_ms: 1000,
+            text: text.to_string(),
+            confidence: None,
+        }
+    }
+
+    fn expect(value: &str) -> ExpectSpeaker {
+        ExpectSpeaker::parse(value).unwrap()
+    }
+
+    #[test]
+    fn expect_speaker_matches_substring_case_insensitively() {
+        let speakers = [speaker(1, "Ana García", false), speaker(2, "Tú", false)];
+        let utterances = [utterance(1, "Código MANGO cuatro")];
+        let wire = WireProbe::default();
+        let ok = check_expect_speaker(&expect("garcía=mango"), &utterances, &speakers, &wire);
+        assert!(ok.passed, "{}", ok.detail);
+        let ok = check_expect_speaker(&expect("ANA=Mango"), &utterances, &speakers, &wire);
+        assert!(ok.passed, "{}", ok.detail);
+        let wrong = check_expect_speaker(&expect("Tú=mango"), &utterances, &speakers, &wire);
+        assert!(!wrong.passed);
+        assert!(wrong.detail.contains("Ana García"));
+        let none = check_expect_speaker(&expect("ana=nube"), &utterances, &speakers, &wire);
+        assert!(!none.passed);
+        assert_eq!(none.detail, "nadie dijo ese término");
+    }
+
+    #[test]
+    fn expect_speaker_self_uses_flag_reserved_name_or_wire() {
+        let wire = WireProbe::default();
+        let utterances = [utterance(1, "hola kuali")];
+        let by_flag = [speaker(1, "Yo", true)];
+        assert!(check_expect_speaker(&expect("@self=kuali"), &utterances, &by_flag, &wire).passed);
+        let by_name = [speaker(1, "Tú", false)];
+        assert!(check_expect_speaker(&expect("@self=kuali"), &utterances, &by_name, &wire).passed);
+        let other = [speaker(1, "Ana", false)];
+        assert!(!check_expect_speaker(&expect("@self=kuali"), &utterances, &other, &wire).passed);
+
+        let mut wired = WireProbe::default();
+        wired.channels.insert(
+            3,
+            ChannelProbe {
+                channel: 3,
+                participant_id: Some("dev-1".into()),
+                is_self: true,
+                ..ChannelProbe::default()
+            },
+        );
+        let mut by_wire = speaker(1, "Ana", false);
+        by_wire.source_id = Some("dev-1".into());
+        assert!(
+            check_expect_speaker(&expect("@self=kuali"), &utterances, &[by_wire], &wired).passed
+        );
+    }
+
+    #[test]
+    fn expect_speaker_parsing() {
+        assert!(ExpectSpeaker::parse("sin igual").is_err());
+        assert!(ExpectSpeaker::parse("=x").is_err());
+        assert_eq!(
+            expect(" Ana = mango cuatro "),
+            ExpectSpeaker {
+                substring: "Ana".into(),
+                term: "mango cuatro".into()
+            }
+        );
+    }
+
+    #[test]
+    fn terms_override_and_min_terms() {
+        let transcript = normalize("Kafka y Redis, código MANGO");
+        let (matched, min) = control_terms(&transcript, None, None, true);
+        assert_eq!(matched, ["kafka", "redis"]);
+        assert_eq!(min, 4);
+        assert_eq!(control_terms(&transcript, None, None, false).1, 2);
+
+        let custom = parse_terms("Mango, ñandú ,, ");
+        assert_eq!(custom, ["Mango", "ñandú"]);
+        let (matched, min) = control_terms(&transcript, Some(&custom), Some(1), true);
+        assert_eq!(matched, ["mango"]);
+        assert_eq!(min, 1);
+    }
+
+    #[test]
+    fn platform_naming() {
+        assert_eq!(platform_label("google_meet"), "Google Meet");
+        assert_eq!(platform_label("yandex_telemost"), "Yandex Telemost");
+        assert_eq!(report_prefix("google_meet"), "meet");
+        assert_eq!(report_prefix("yandex_telemost"), "yandex_telemost");
+    }
+
+    #[test]
+    fn observe_records_timeline_without_keepalive() {
+        let mut wire = WireProbe::default();
+        for json in [
+            r#"{"kind":"keepalive","ts":1}"#,
+            r#"{"kind":"roster-state","ts":2,"detail":{"participantCount":2,"participants":[{"participantId":"a","displayName":"Ana","isSelf":true},{"participantId":"b"}]}}"#,
+            r#"{"kind":"participant-upsert","ts":3,"detail":{"channel":4,"participantId":"b","displayName":"Bob","inCall":true}}"#,
+        ] {
+            wire.observe_at(&Message::Text(json.into()), 5000);
+        }
+        assert_eq!(wire.timeline.len(), 2);
+        assert_eq!(wire.timeline[0].participant_count, Some(2));
+        assert_eq!(wire.timeline[0].participants.as_ref().unwrap().len(), 2);
+        assert_eq!(wire.timeline[1].channel, Some(4));
+        assert_eq!(wire.timeline[1].in_call, Some(true));
+        assert_eq!(wire.timeline[1].ts_ms, 5000);
+    }
 }
