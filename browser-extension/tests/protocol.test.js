@@ -668,3 +668,36 @@ test("capture ends only after the top Meet roster has seen self disappear", () =
     shouldScheduleStop: true,
   });
 });
+
+test("Telemost hosts map to their own platform instead of the Teams default", () => {
+  for (const host of ["telemost.yandex.ru", "telemost.yandex.com", "telemost.360.yandex.ru", "telemost.360.yandex.com"]) {
+    assert.equal(capturePolicy.meetingPlatformForHost(host), "yandex_telemost", host);
+    assert.equal(capturePolicy.isPlatformHost("yandex_telemost", host), true, host);
+  }
+  assert.equal(capturePolicy.meetingPlatformForHost("meet.google.com"), "google_meet");
+  assert.equal(capturePolicy.meetingPlatformForHost("us05web.zoom.us"), "zoom");
+  assert.equal(capturePolicy.meetingPlatformForHost("teams.microsoft.com"), "microsoft_teams");
+  assert.equal(capturePolicy.isPlatformHost("yandex_telemost", "passport.yandex.ru"), false);
+  assert.equal(capturePolicy.isPlatformHost("microsoft_teams", "teams.live.com"), true);
+  assert.equal(capturePolicy.isPlatformHost("microsoft_teams", "login.microsoftonline.com"), false);
+});
+
+test("the Telemost call iframe, not its messenger shell, is the primary capture frame", () => {
+  assert.equal(capturePolicy.isPrimaryCaptureFrame("yandex_telemost", "/j/32667003746973", true), false);
+  assert.equal(capturePolicy.isPrimaryCaptureFrame("yandex_telemost", "/private-join/32667003746973", false), true);
+  assert.equal(capturePolicy.isPrimaryCaptureFrame("yandex_telemost", "/private-join/32667003746973", true), true);
+  assert.equal(capturePolicy.isPrimaryCaptureFrame("google_meet", "/abc-defg-hij", true), true);
+  assert.equal(capturePolicy.isPrimaryCaptureFrame("google_meet", "/abc-defg-hij", false), false);
+  assert.equal(capturePolicy.telemostMeetingId("/j/32667003746973"), "32667003746973");
+  assert.equal(capturePolicy.telemostMeetingId("/private-join/32667003746973"), "32667003746973");
+  assert.equal(capturePolicy.telemostMeetingId("/"), null);
+});
+
+test("presence follows the primary frame when it is a child frame", () => {
+  assert.equal(meetingPresence(0, true, [], 7), null, "the shell is not authoritative");
+  assert.deepEqual(meetingPresence(7, true, [{ isSelf: false }], 7), {
+    selfPresent: false,
+    hadSelf: true,
+    shouldScheduleStop: true,
+  });
+});

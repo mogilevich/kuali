@@ -1,0 +1,1025 @@
+{
+  "_about": "Redacted Yandex Telemost goloom signalling and REST samples for unit tests. Placeholders: <P_HOST>, <P1>, <P2>, <P3> = goloom participant ids; <NAME_*> = display names. Direction: in = server->client, out = client->server. Copied from recon samples; secrets removed.",
+  "out.hello": [
+    {
+      "t_ms": 1793482480192,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000001",
+        "hello": {
+          "participantMeta": {
+            "name": "<NAME_HOST>",
+            "role": "SPEAKER",
+            "description": "",
+            "sendAudio": true,
+            "sendVideo": true
+          },
+          "participantAttributes": {
+            "name": "<NAME_HOST>",
+            "role": "SPEAKER",
+            "description": ""
+          },
+          "sendAudio": true,
+          "sendVideo": true,
+          "sendSharing": false,
+          "participantId": "<P_HOST>",
+          "roomId": "<ROOM_ID>",
+          "serviceName": "telemost",
+          "credentials": "<REDACTED>"
+        }
+      }
+    }
+  ],
+  "out.updateMe.mic_off": [
+    {
+      "t_ms": 1793483106890,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000002",
+        "updateMe": {
+          "participantMeta": {
+            "name": "<NAME_HOST>",
+            "description": "",
+            "role": "SPEAKER",
+            "sendAudio": false,
+            "sendVideo": true
+          },
+          "participantAttributes": {
+            "name": "<NAME_HOST>",
+            "role": "SPEAKER",
+            "description": ""
+          },
+          "sendAudio": false,
+          "sendVideo": true,
+          "sendSharing": false
+        }
+      }
+    }
+  ],
+  "out.updateMe.camera_off": [
+    {
+      "t_ms": 1793483116904,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000003",
+        "updateMe": {
+          "participantMeta": {
+            "name": "<NAME_HOST>",
+            "description": "",
+            "role": "SPEAKER",
+            "sendAudio": true,
+            "sendVideo": false
+          },
+          "participantAttributes": {
+            "name": "<NAME_HOST>",
+            "role": "SPEAKER",
+            "description": ""
+          },
+          "sendAudio": true,
+          "sendVideo": false,
+          "sendSharing": false
+        }
+      }
+    }
+  ],
+  "out.ping": [
+    {
+      "t_ms": 1793482228285,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000004",
+        "ping": {}
+      }
+    }
+  ],
+  "out.setSlots": [
+    {
+      "t_ms": 1793482480575,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000005",
+        "setSlots": {
+          "slots": [
+            {
+              "width": 1312,
+              "height": 738
+            },
+            {
+              "width": 720,
+              "height": 405
+            },
+            {
+              "width": 656,
+              "height": 369
+            },
+            {
+              "width": 656,
+              "height": 369
+            },
+            {
+              "width": 464,
+              "height": 261
+            },
+            {
+              "width": 464,
+              "height": 261
+            },
+            {
+              "width": 416,
+              "height": 234
+            },
+            {
+              "width": 416,
+              "height": 234
+            },
+            {
+              "width": 416,
+              "height": 234
+            },
+            {
+              "width": 352,
+              "height": 198
+            },
+            {
+              "width": 352,
+              "height": 198
+            },
+            {
+              "width": 352,
+              "height": 198
+            }
+          ],
+          "audioSlotsCount": 0,
+          "key": 5,
+          "shutdownAllVideo": null,
+          "withSelfView": true,
+          "selfViewVisibility": "ON_LOADING_THEN_SHOW",
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.updateDescription.snapshot_on_join_one_peer": [
+    {
+      "t_ms": 1793483021540,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000006",
+        "updateDescription": {
+          "description": [
+            {
+              "id": "<P_HOST>",
+              "meta": {
+                "name": "<NAME_HOST>",
+                "role": "SPEAKER",
+                "description": "",
+                "sendAudio": true,
+                "sendVideo": true
+              },
+              "participantAttributes": {},
+              "sendAudio": true,
+              "sendVideo": true,
+              "sendSharing": false,
+              "hideFromParticipantsList": false,
+              "networkScore": "EXCELLENT",
+              "connectionType": "CONNECTION_TYPE_SDK"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in.updateDescription.snapshot_on_join_alone": [
+    {
+      "t_ms": 1793482221370,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000007",
+        "updateDescription": {
+          "description": []
+        }
+      }
+    }
+  ],
+  "in.upsertDescription.join": [
+    {
+      "t_ms": 1793482539189,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000008",
+        "upsertDescription": {
+          "description": [
+            {
+              "id": "<P1>",
+              "meta": {
+                "name": "<NAME_P1>",
+                "role": "SPEAKER",
+                "description": "",
+                "sendAudio": true,
+                "sendVideo": true
+              },
+              "participantAttributes": {},
+              "sendAudio": true,
+              "sendVideo": true,
+              "sendSharing": false,
+              "hideFromParticipantsList": false,
+              "networkScore": "NETWORK_QUALITY_SCORE_UNSPECIFIED",
+              "connectionType": "CONNECTION_TYPE_SDK"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in.upsertDescription.remote_mic_muted": [
+    {
+      "t_ms": 1793483070907,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000009",
+        "upsertDescription": {
+          "description": [
+            {
+              "id": "<P2>",
+              "meta": {
+                "name": "<NAME_P2>",
+                "role": "SPEAKER",
+                "description": "",
+                "sendAudio": false,
+                "sendVideo": true
+              },
+              "participantAttributes": {},
+              "sendAudio": false,
+              "sendVideo": true,
+              "sendSharing": false,
+              "hideFromParticipantsList": false,
+              "networkScore": "EXCELLENT",
+              "connectionType": "CONNECTION_TYPE_SDK"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in.upsertDescription.remote_camera_off": [
+    {
+      "t_ms": 1793483117849,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000010",
+        "upsertDescription": {
+          "description": [
+            {
+              "id": "<P_HOST>",
+              "meta": {
+                "name": "<NAME_HOST>",
+                "role": "SPEAKER",
+                "description": "",
+                "sendAudio": true,
+                "sendVideo": false
+              },
+              "participantAttributes": {},
+              "sendAudio": true,
+              "sendVideo": false,
+              "sendSharing": false,
+              "hideFromParticipantsList": false,
+              "networkScore": "EXCELLENT",
+              "connectionType": "CONNECTION_TYPE_SDK"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in.removeDescription.leave": [
+    {
+      "t_ms": 1793482519863,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000011",
+        "removeDescription": {
+          "descriptionId": [
+            "<P2>"
+          ]
+        }
+      }
+    }
+  ],
+  "in.slotsMeta": [
+    {
+      "t_ms": 1793482480673,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000012",
+        "slotsMeta": {
+          "maxOffset": 1
+        }
+      }
+    },
+    {
+      "t_ms": 1793482519085,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000013",
+        "slotsMeta": {
+          "maxOffset": 0
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.alone": [
+    {
+      "t_ms": 1793482221490,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000014",
+        "slotsConfig": {
+          "key": 5,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.peer_joined_no_video_yet": [
+    {
+      "t_ms": 1793482519074,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000015",
+        "slotsConfig": {
+          "key": 6,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participant": {
+                "participantId": "<P2>"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.video_mid_pending": [
+    {
+      "t_ms": 1793482480674,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000016",
+        "slotsConfig": {
+          "key": 5,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participantVideoByMid": {
+                "participantId": "<P2>",
+                "mid": "",
+                "limitationReason": "UNSPECIFIED"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": "fake_device_0"
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.remote_speaking_vad_true": [
+    {
+      "t_ms": 1793482542358,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000017",
+        "slotsConfig": {
+          "key": 9,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participantVideoByMid": {
+                "participantId": "<P1>",
+                "mid": "video_AA",
+                "limitationReason": "NO_LIMITATION"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": "fake_device_0"
+            },
+            {
+              "participantVideoByMid": {
+                "participantId": "<P2>",
+                "mid": "video_AB",
+                "limitationReason": "NO_LIMITATION"
+              },
+              "vad": true,
+              "pinned": false,
+              "label": "fake_device_0"
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.remote_speaking_camera_off_vad_true": [
+    {
+      "t_ms": 1793482657655,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000018",
+        "slotsConfig": {
+          "key": 9,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participantVideoByMid": {
+                "participantId": "<P1>",
+                "mid": "video_AA",
+                "limitationReason": "NO_LIMITATION"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": "fake_device_0"
+            },
+            {
+              "participant": {
+                "participantId": "<P2>"
+              },
+              "vad": true,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.slotsConfig.three_remote_peers": [
+    {
+      "t_ms": 1793483178226,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000019",
+        "slotsConfig": {
+          "key": 23,
+          "videoSlots": [],
+          "audioSlots": [],
+          "prevSlots": [],
+          "slots": [
+            {
+              "selfView": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participantVideoByMid": {
+                "participantId": "<P1>",
+                "mid": "video_AA",
+                "limitationReason": "NO_LIMITATION"
+              },
+              "vad": true,
+              "pinned": false,
+              "label": "fake_device_0"
+            },
+            {
+              "participant": {
+                "participantId": "<P2>"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "participant": {
+                "participantId": "<P3>"
+              },
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            },
+            {
+              "empty": {},
+              "vad": false,
+              "pinned": false,
+              "label": ""
+            }
+          ],
+          "nextSlots": [],
+          "offset": 0,
+          "gridConfig": {}
+        }
+      }
+    }
+  ],
+  "in.vadActivity.self": [
+    {
+      "t_ms": 1793482480994,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000020",
+        "vadActivity": {
+          "active": true
+        }
+      }
+    },
+    {
+      "t_ms": 1793482480536,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000021",
+        "vadActivity": {
+          "active": false
+        }
+      }
+    }
+  ],
+  "in.ack": [
+    {
+      "t_ms": 1793482480447,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000022",
+        "ack": {
+          "status": {
+            "code": "OK",
+            "description": ""
+          }
+        }
+      }
+    }
+  ],
+  "in.upsertParticipantsQualityReport": [
+    {
+      "t_ms": 1793482560808,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000023",
+        "upsertParticipantsQualityReport": {
+          "participantsQualityReport": [
+            {
+              "participantId": "<P1>",
+              "networkScore": "EXCELLENT"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in.selfQualityReport": [
+    {
+      "t_ms": 1793482501960,
+      "msg": {
+        "uid": "00000000-0000-4000-8000-000000000024",
+        "selfQualityReport": {
+          "networkScore": "EXCELLENT"
+        }
+      }
+    }
+  ],
+  "rest.POST_request-states.initial": {
+    "url": "https://cloud-api.yandex.ru/telemost_front/v2/telemost/conferences/https%3A%2F%2Ftelemost.yandex.ru%2Fj%2F00000000000000/request-states",
+    "response": {
+      "peers": [
+        {
+          "peer_id": "<P1>",
+          "peer_type": "USER",
+          "version": 2,
+          "state": {
+            "user_data": {
+              "role": "MEMBER",
+              "display_name": "<NAME_P1>",
+              "avatar_placeholder": {
+                "background_color": "#6e41f5",
+                "text_color": "#fff",
+                "abbreviation": "GO"
+              }
+            }
+          },
+          "public_permissions_override": null
+        },
+        {
+          "peer_id": "<P_HOST>",
+          "peer_type": "USER",
+          "version": 1,
+          "state": {
+            "user_data": {
+              "role": "OWNER",
+              "display_name": "<NAME_HOST>",
+              "avatar_url": "https://avatars.example.test/p_host/islands-300",
+              "is_default_avatar": false,
+              "avatar_placeholder": {
+                "background_color": "#eb4940",
+                "text_color": "#fff",
+                "abbreviation": "А"
+              }
+            }
+          },
+          "public_permissions_override": null
+        }
+      ]
+    }
+  },
+  "rest.POST_request-states.new_peer": {
+    "url": "https://cloud-api.yandex.ru/telemost_front/v2/telemost/conferences/https%3A%2F%2Ftelemost.yandex.ru%2Fj%2F00000000000000/request-states",
+    "response": {
+      "peers": [
+        {
+          "peer_id": "<P2>",
+          "peer_type": "USER",
+          "version": 3,
+          "state": {
+            "user_data": {
+              "role": "MEMBER",
+              "display_name": "<NAME_P2>",
+              "avatar_placeholder": {
+                "background_color": "#f8cd46",
+                "text_color": "#000",
+                "abbreviation": "GT"
+              }
+            }
+          },
+          "public_permissions_override": null
+        }
+      ]
+    }
+  },
+  "rest.POST_request-states.periodic_no_change": {
+    "url": "https://cloud-api.yandex.ru/telemost_front/v2/telemost/conferences/https%3A%2F%2Ftelemost.yandex.ru%2Fj%2F00000000000000/request-states",
+    "response": {
+      "peers": []
+    }
+  }
+}
