@@ -19,7 +19,7 @@
 ## Key facts
 
 - Discord and Google Meet are stable integrations.
-- Microsoft Teams and Zoom are experimental with partial support.
+- Microsoft Teams, Zoom, and Yandex Telemost are experimental with partial support.
 - Raw meeting audio is processed in memory and is not retained as an audio recording.
 - Whisper transcription and Silero voice detection run locally.
 - The native desktop core is written in Rust; the Discord bot and browser meeting receiver run from the user's computer.

@@ -27,7 +27,12 @@ Cuando eliges grabar y transcribir una reunión compatible, Kuali puede procesar
 - plataforma, identificador, título de la pestaña y horas de inicio y fin;
 - nombre visible, usuario, ID de la plataforma, URL de avatar, estado de
   silencio y actividad de voz de cada participante, además de si su canal de
-  audio es separado o mezclado; y
+  audio es separado o mezclado (en Yandex Telemost, la extensión lee, dentro de
+  la página y sólo en local, la señalización propia de Telemost con nombres,
+  estado de silencio, indicadores de actividad de voz e ID del participante
+  local, y una respuesta de perfil de Telemost para las URL de avatar; no
+  conserva credenciales ni tokens y no envía nada más allá de la conexión
+  loopback con Kuali); y
 - la transcripción atribuida por hablante, valores de confianza, resumen,
   puntos clave, decisiones, preguntas abiertas y tareas.
 

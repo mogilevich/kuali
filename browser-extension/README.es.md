@@ -3,8 +3,9 @@
 [English](README.md) · **Español**
 
 Conecta reuniones del navegador con la aplicación local de Kuali. Google Meet
-tiene soporte estable. Microsoft Teams y Zoom tienen soporte experimental y
-parcial mientras sus integraciones reciben más pruebas en reuniones reales. Tú
+tiene soporte estable. Microsoft Teams, Zoom y Yandex Telemost tienen soporte
+experimental y parcial mientras sus integraciones reciben más pruebas en
+reuniones reales. Tú
 sigues siendo un participante normal; no entra una cuenta de bot externa.
 
 | Plataforma | Estado |
@@ -12,6 +13,7 @@ sigues siendo un participante normal; no entra una cuenta de bot externa.
 | Google Meet | Estable |
 | Microsoft Teams | Experimental · soporte parcial |
 | Zoom | Experimental · soporte parcial |
+| Yandex Telemost | Experimental · soporte parcial |
 
 ## Instalar
 
@@ -56,6 +58,26 @@ la RAM. Para una prueba rápida de una sola persona usa
 `npm run test:e2e:meet -- --solo`. El reporte JSON queda en
 `target/e2e/reports`.
 
+## E2E real con Yandex Telemost
+
+Ejecuta la prueba automática contra una reunión real de Telemost (desde esta
+carpeta, o `just telemost-e2e <url>` desde la raíz del repositorio):
+
+```sh
+npm run test:e2e:telemost -- --meeting-url https://telemost.yandex.ru/j/<id> \
+  [--host-cdp http://127.0.0.1:9222]
+```
+
+Descarga Chrome for Testing dentro de `target/e2e`, requiere que el modelo de
+Whisper y Silero VAD ya estén descargados y crea temporalmente una configuración
+de Kuali con transcripción en ruso si no existe (`--force-language-config` cambia
+una existente solo durante la prueba). Los invitados entran con voces sintéticas
+en ruso, así que no usa micrófono ni cámara reales. `--host-cdp` apunta a un
+Chrome ya abierto, con depuración remota y una sesión de Yandex, que actúa como
+organizador de la reunión. Comprueba la atribución de hablantes, las ventanas de
+silencio, la salida de participantes y el cierre automático. Con `--help` ves
+todas las opciones.
+
 ## Separación real y mezcla
 
 - Meet observa los frames Opus codificados antes de que la web los consuma,
@@ -70,6 +92,17 @@ la RAM. Para una prueba rápida de una sola persona usa
 - Zoom (experimental) intenta lo mismo. Si ese modo no expone pistas WebRTC, un `tabCapture`
   aislado conserva la reunión como un canal `mixed`. El fallback se descarta tan
   pronto como aparece una pista individual, para no transcribir ambas rutas.
+- Yandex Telemost (experimental): Telemost mezcla a todos los participantes
+  remotos en un solo flujo de audio en su servidor, así que no hay pistas por
+  participante. Kuali lee los indicadores de actividad de voz y la lista de
+  participantes del propio Telemost desde la página (en local, en el navegador)
+  y asigna el audio mezclado a quien estaba hablando. El micrófono local se
+  captura por separado. El habla superpuesta se atribuye a quien empezó a hablar
+  más recientemente, y las interjecciones muy cortas o el sonido que Telemost no
+  marca como voz aparecen bajo el hablante compartido «Sala». El comportamiento
+  con más de unos 12 participantes no está verificado. Los dominios compatibles
+  son `telemost.yandex.ru`, `telemost.yandex.com`, `telemost.360.yandex.ru` y
+  `telemost.360.yandex.com`.
 
 Meet envía actualmente tres pistas virtuales con los hablantes más relevantes.
 Kuali conserva identidades estables en reuniones con más participantes conforme

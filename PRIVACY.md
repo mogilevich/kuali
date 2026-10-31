@@ -28,7 +28,11 @@ process:
 - the meeting platform, meeting identifier, page title, and start/end times;
 - participant display names, usernames, platform identifiers, avatar URLs,
   mute state, speaking activity, and whether an audio channel is separate or
-  mixed; and
+  mixed (on Yandex Telemost, the extension reads, inside the page and only
+  locally, Telemost's own meeting signalling for participant names, mute state,
+  voice-activity flags, and the local participant ID, plus one Telemost profile
+  response for avatar URLs; it keeps no credentials or tokens and sends nothing
+  beyond the loopback connection to Kuali); and
 - the resulting speaker-attributed transcript, confidence values, summary,
   key points, decisions, open questions, and action items.
 

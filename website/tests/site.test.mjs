@@ -285,10 +285,12 @@ test("platform support is explicit in both languages", () => {
   const spanishHome = read("es/index.html");
   assert.match(englishHome, /Microsoft Teams <small>Experimental · partial<\/small>/);
   assert.match(englishHome, /Zoom <small>Experimental · partial<\/small>/);
+  assert.match(englishHome, /Yandex Telemost <small>Experimental · partial<\/small>/);
   assert.match(spanishHome, /Microsoft Teams <small>Experimental · parcial<\/small>/);
   assert.match(spanishHome, /Zoom <small>Experimental · parcial<\/small>/);
-  assert.match(read("guides/index.html"), /Google Meet is stable[\s\S]*Microsoft Teams and Zoom are experimental/);
-  assert.match(read("es/guides/index.html"), /Google Meet es estable[\s\S]*Microsoft Teams y Zoom son experimentales/);
+  assert.match(spanishHome, /Yandex Telemost <small>Experimental · parcial<\/small>/);
+  assert.match(read("guides/index.html"), /Google Meet is stable[\s\S]*Microsoft Teams, Zoom, and Yandex Telemost are experimental/);
+  assert.match(read("es/guides/index.html"), /Google Meet es estable[\s\S]*Microsoft Teams, Zoom y Yandex Telemost son experimentales/);
 });
 
 test("only experimental platform dots use the orange status color", () => {
