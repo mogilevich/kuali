@@ -4,7 +4,7 @@
   "short_name": "Kuali",
   "description": "__MSG_appDescription__",
   "version": "0.1.6",
-  "version_name": "0.1.6-telemost.1",
+  "version_name": "0.1.6-integration.1",
   "default_locale": "en",
   "minimum_chrome_version": "116",
   "homepage_url": "https://github.com/igarrux/kuali",
