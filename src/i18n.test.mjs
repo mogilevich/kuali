@@ -121,7 +121,7 @@ test("signed updates are checked at startup and deferred during active work", ()
   assert.equal(tauriConfig.bundle.createUpdaterArtifacts, true);
   assert.match(tauriConfig.plugins.updater.pubkey, /^[A-Za-z0-9+/=]+$/);
   assert.deepEqual(tauriConfig.plugins.updater.endpoints, [
-    "https://github.com/igarrux/kuali/releases/latest/download/latest.json",
+    "https://github.com/mogilevich/kuali/releases/latest/download/latest.json",
   ]);
 });
 
