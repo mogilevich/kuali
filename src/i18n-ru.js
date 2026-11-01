@@ -354,6 +354,7 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
   Equilibrado: "Сбалансированная",
   Preciso: "Точная",
   "Máxima precisión": "Максимальная точность",
+  "Solo ruso": "Только русский",
   "Transcripción en vivo rápida y precisa para la mayoría de reuniones.":
     "Быстрая и точная расшифровка в реальном времени для большинства встреч.",
   "Más fidelidad sin dejar de priorizar una transcripción ágil en tiempo real.":
@@ -362,6 +363,9 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
     "Лучше распознаёт сложный звук, акценты и смешанную лексику.",
   "La mayor fidelidad disponible en Kuali, con una cuantización conservadora.":
     "Максимальная точность из доступных в Kuali, с консервативным квантованием.",
+  "Reconocimiento dedicado al ruso, con puntuación. Fija el idioma del audio en ruso.":
+    "Распознаёт только русскую речь и расставляет пунктуацию. Язык речи фиксируется на русском.",
+  "GigaAM v3 — solo ruso, con puntuación": "GigaAM v3 — только русский, с пунктуацией",
   "≈ {memory} de RAM": "≈ {memory} ОЗУ",
   Descargado: "Скачана",
   "{technicalName}. Listo para usar; la RAM indicada es una estimación y varía según el sistema.":
@@ -502,8 +506,8 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
   "Chrome Web Store también permite instalar extensiones en Edge, Brave y Arc.":
     "Из Chrome Web Store расширения можно устанавливать и в Edge, Brave и Arc.",
   "Meet, Teams y Zoom": "Meet, Teams и Zoom",
-  "Google Meet tiene soporte estable. Microsoft Teams y Zoom tienen soporte experimental y parcial.":
-    "Google Meet поддерживается стабильно. Microsoft Teams и Zoom — экспериментально и частично.",
+  "Google Meet tiene soporte estable. Microsoft Teams, Zoom y Yandex Telemost tienen soporte experimental y parcial.":
+    "Google Meet поддерживается стабильно. Microsoft Teams, Zoom и Яндекс Телемост — экспериментально и частично.",
   "Instalación manual": "Установка вручную",
   "Úsala solamente si la tienda no está disponible. Abre el administrador del navegador, activa":
     "Используйте этот способ, только если магазин недоступен. Откройте страницу расширений браузера, включите",
@@ -596,6 +600,7 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
   "Calidad, velocidad e idioma del audio.": "Качество, скорость и язык речи.",
   "Modelo de Whisper": "Модель Whisper",
   "Idioma del audio": "Язык речи",
+  "Este modelo solo reconoce ruso.": "Эта модель распознаёт только русскую речь.",
   "Español": "Испанский",
   "Inglés": "Английский",
   "Detectar automáticamente (no recomendado)": "Определять автоматически (не рекомендуется)",
@@ -611,6 +616,8 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
   "Añadir": "Добавить",
   "Whisper usará estas grafías como contexto desde la próxima llamada.":
     "Whisper будет использовать эти написания как контекст со следующего звонка.",
+  "El modelo seleccionado no usa el vocabulario personalizado; se conserva para los modelos de Whisper.":
+    "Выбранная модель не использует ваш словарь; он сохранится для моделей Whisper.",
   Almacenamiento: "Хранилище",
   "Dónde guardar los pesos descargables del modelo.": "Где хранить скачиваемые файлы модели.",
   "Carpeta de los modelos": "Папка моделей",
@@ -727,7 +734,7 @@ export const RUSSIAN_TRANSLATIONS = Object.freeze({
   "Terminando transcripción…": "Завершение расшифровки…",
   "Sacando el resumen…": "Подготовка сводки…",
   "Verificando modelo…": "Проверка модели…",
-  "Cargando Whisper…": "Загрузка Whisper…",
+  "Cargando el modelo…": "Загрузка модели…",
   Desactivado: "Выключено",
   "Sin conexión": "Не подключено",
   Editar: "Изменить",
