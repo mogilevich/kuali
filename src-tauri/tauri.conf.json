@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Kuali",
-  "version": "0.1.17",
+  "version": "0.1.17-telemost.1",
   "identifier": "com.onwev.kuali",
   "build": {
     "frontendDist": "../src"
@@ -62,9 +62,9 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFENTcwOUJBRjBERTRBN0UKUldSK1N0N3d1Z2xYSFlEdGVrZERZU3NlL2RZVnhRMXRtVERRZDJ1eXREU0R6dkVEOTY4dUdPOUkK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDA5MTNGM0Y3OTk3RUJCOEEKUldTS3UzNlo5L01UQ1M0VytnbXhUUnFGQlNRKzNsKy80NXdtRitxbTg5NDNNanl0MkVDbjNrZnUK",
       "endpoints": [
-        "https://github.com/igarrux/kuali/releases/latest/download/latest.json"
+        "https://github.com/mogilevich/kuali/releases/latest/download/latest.json"
       ]
     }
   }
